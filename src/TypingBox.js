@@ -1,30 +1,22 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './TypingWindow.css'
 
 export default function TypingBox(props) {
 
   const typingboxStyle = useRef(null)
   const letterRef = useRef(0)
+  const [isFocused, setFocused] = useState(true)
+  let totalTime;
+  // console.log(props.letterState)
   //function to highlight phrase
   const StoreText = (event) => {
-    // console.log(event);
-    // typingboxStyle.current.className.backgroundColor = "white"
-    
-    // // typingboxStyle.current.focus()
-    // console.log(props.cursorPosition);
-    // console.log(props.phrasePostition);
-    // console.log(props.wordPosition);
-    // console.log(props.wordLength);
-    // console.log(props.word[props.wordPosition]);
-    // console.log(event.key);
-
-    let endTime, totalTime
-    if (props.phrasePostition == 0 && props.wordPosition == 0) {
-      props.setStartTime(Date.now())
+   
+  
+    if (props.wordPosition==0 && props.letterPosition==0){
+      props.startTime.current = Date.now()
     }
 
-    if (props.phrasePostition == props.phrase.length - 1 && props.wordPosition == props.wordLength - 1) {
-      endTime = Date.now()
+    if (props.wordPosition == props.phrase.length - 1 && props.letterPosition == props.wordLength - 1) {
       console.log("end ", props.startTime);
       totalTime = Date.now() - props.startTime
       console.log('totalTime: ', totalTime);
@@ -35,57 +27,68 @@ export default function TypingBox(props) {
     }
 
     // let letterEle = document.querySelectorAll('.letter')
-    if (props.wordPosition < props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
-      props.setWordPosition(prev => prev + 1)
+    if (props.letterPosition < props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
+      props.setletterPosition(prev => prev + 1)
       props.setCursorPosition(prev => prev + 1)
-      if (props.word[props.wordPosition] == event.key) {
-        // letterEle[props.cursorPosition].style.color = "black"
-        // typingboxStyle.current.children[props.phrasePostition].children[props.wordPosition].style.color="black"
-        typingboxStyle.current.children[props.phrasePostition].children[props.wordPosition].classList.add('correct')
+      if (props.word[props.letterPosition] == event.key) {
+        
+        // typingboxStyle.current.children[props.wordPosition].children[props.letterPosition].classList.add('correct')
+        props.setLetterState({
+          type:'CORRECT', 
+          payload: {
+            'wordPos': props.wordPosition,
+            'letterPos': props.letterPosition
+          }
+        })
 
       }
       else {
-        // letterEle[props.cursorPosition].style.color = "red"
-        // typingboxStyle.current.children[props.phrasePostition].children[props.wordPosition].style.color="red"
-        typingboxStyle.current.children[props.phrasePostition].children[props.wordPosition].classList.add('error')
+
+        // typingboxStyle.current.children[props.wordPosition].children[props.letterPosition].classList.add('error')
+        props.setLetterState({
+          type:'INCORRECT', 
+          payload: {
+            'wordPos': props.wordPosition,
+            'letterPos': props.letterPosition
+          }
+        })
       }
     }
-    else if (event.key == ' ' || props.wordPosition > props.wordLength) {
-      props.setPhrasePosition(prev => prev + 1)
-      props.setWordPosition(0)
-      props.setWordLength(props.phrase[props.phrasePostition + 1].length)
-      props.setWord(props.phrase[props.phrasePostition + 1])
-      if (props.wordPosition !== props.wordLength) {
-        let diff = (props.wordLength) - props.wordPosition
+    else if (event.key == ' ' || props.letterPosition > props.wordLength) {
+      props.setwordPosition(prev => prev + 1)
+      props.setletterPosition(0)
+      props.setWordLength(props.phrase[props.wordPosition + 1].length)
+      props.setWord(props.phrase[props.wordPosition + 1])
+      if (props.letterPosition !== props.wordLength) {
+        let diff = (props.wordLength) - props.letterPosition
         props.setCursorPosition(props.cursorPosition + diff)
       }
     }
-    else if (event.key == 'Backspace' && props.wordPosition>0) {
-      props.setWordPosition(prev => prev - 1)
-      // letterEle[props.cursorPosition - 1].style.color = "gray"
-      console.log("word position: ",props.wordPosition)
-      // typingboxStyle.current.children[props.phrasePostition].children[props.wordPosition-1].style.color="gray"
-      let classname = typingboxStyle.current.children[props.phrasePostition].children[props.wordPosition-1].classList[1]
-      typingboxStyle.current.children[props.phrasePostition].children[props.wordPosition-1].classList.remove(classname)
+    else if (event.key == 'Backspace' && props.letterPosition>0) {
+      props.setLetterState({
+        type:'REMOVE', 
+        payload: {
+          'wordPos': props.wordPosition,
+          'letterPos': props.letterPosition-1
+        }
+      })
+      props.setletterPosition(prev => prev - 1)
 
+      console.log("word position: ",props.letterPosition)
       props.setCursorPosition(props.cursorPosition - 1)
     }
-
-
 
   }
 
   useEffect(()=>{
     typingboxStyle.current.focus()
-  })
-
-  
+  },[props.phrase])  
 
   return (
-    <div ref={typingboxStyle} onClick={()=>typingboxStyle.current.focus()} className='typingBox' onKeyDown={(event) => StoreText(event)} tabIndex='0'>
-      {props.phrase.map((word) => {
+    <div ref={typingboxStyle} onfocus = {()=> setFocused(true)} onClick={(event)=>{typingboxStyle.current.focus()}} className='typingBox' onKeyDown={(event) => StoreText(event)} tabIndex='0' autoFocus>
+      {props.phrase.map((word, w) => {
         let letterEle = word.split('')
-        return (<div className="word">{letterEle.map(letter => <div className="letter">{letter}</div>)}</div>)
+        return (<div className="word">{letterEle.map((letter,l) => <div className={`letter ${props.letterState[w][l]}`}>{letter}</div>)}</div>)
       })}
     </div>
   )

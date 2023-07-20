@@ -5,6 +5,8 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    cursor: default;
+    outline: none;
     
 }
 #buttonContainer{
@@ -15,15 +17,16 @@
   flex-direction: row;
   margin: 4px
 }
+.letter {
+  font-size: 2rem;
+}
 .typingWindow{
     display: flex;
     flex-direction: column;
     align-items: center;
     padding-top: 10rem;
 }
-.typingBox:focus{
-  cursor: pointer;
-}
+
 [contentEditable=true]:empty:not(:focus):before {
     content: attr(data-text)
   }
