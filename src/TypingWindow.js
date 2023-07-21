@@ -19,8 +19,13 @@ export default function TypingWindow() {
         return state;
       }
       else if (action.type == 'REMOVE'){
-        state[action.payload.wordPos][action.payload.letterPos] = '';
+        state[action.payload.wordPos][action.payload.letterPos] = 'active';
+        state[action.payload.wordPos][action.payload.letterPos+1] = '';
         return state;
+      }
+      else if(action.type=='ACTIVE'){
+        state[action.payload.wordPos][action.payload.letterPos] = 'active';
+        return state
       }
       else{
         return state;
