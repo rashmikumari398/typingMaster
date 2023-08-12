@@ -1,7 +1,6 @@
 .typingBox{
-    max-width:1000px;
-    height: 100px;
-    color: gray;
+
+    color: rgb(104, 104, 104);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -9,16 +8,24 @@
     outline: none;
     
 }
+#typingBoxContainer{
+  margin-top: 50px;
+  max-width:80rem;
+  max-height: 170px;
+  overflow: hidden;
+  transition: all 0.25s ease 0s, transform 0.05s ease 0s;
+}
 #buttonContainer{
   margin-bottom: 3rem;
 }
 .word{
   display: flex;
   flex-direction: row;
-  margin: 4px
+  padding: 4px
 }
 .letter {
   font-size: 2rem;
+  transition: all 0.25s ease 0s, transform 0.05s ease 0s;
 }
 .active{
   border-left: 3px solid #E2B714;
@@ -49,11 +56,8 @@
   }
 
 .correct{
-  color:black
+  color:rgb(198, 198, 198);
 }
 .error{
   color: red;
 }
-/* .letter{
-  color:gray
-} */

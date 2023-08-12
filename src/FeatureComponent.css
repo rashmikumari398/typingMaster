@@ -1,0 +1,31 @@
+.btn{
+    background-color: black;
+    color: gray;
+    outline: none;
+    border: none;
+    text-transform: lowercase;
+    /* padding: 5px; */
+}
+.btn:hover{
+    background-color: black;
+    color: #ffffff;
+}
+
+.btnColorInactive{
+    color:gray
+}
+
+.btnColorActive{
+    color:#E2B714
+}
+
+.btn-feature{
+    width: 95px;
+}
+.btn-timer{
+    width: 58px;
+}
+
+.btn:focus{
+    outline: none;
+}
