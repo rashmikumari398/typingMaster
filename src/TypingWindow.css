@@ -1,6 +1,5 @@
 .typingBox{
-    max-width:1000px;
-    height: 100px;
+
     color: gray;
     display: flex;
     flex-direction: row;
@@ -8,6 +7,12 @@
     cursor: default;
     outline: none;
     
+}
+#typingBoxContainer{
+  margin-top: 50px;
+  max-width:80rem;
+  max-height: 170px;
+  overflow: hidden;
 }
 #buttonContainer{
   margin-bottom: 3rem;
@@ -54,6 +59,3 @@
 .error{
   color: red;
 }
-/* .letter{
-  color:gray
-} */

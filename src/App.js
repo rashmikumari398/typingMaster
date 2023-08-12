@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import TypingWindow from './TypingWindow';
+import TypingWindow from './Components/TypingWindow';
 
 function App() {
   return (
