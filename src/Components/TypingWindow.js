@@ -10,21 +10,21 @@ export default function TypingWindow() {
 
   function handleLetterStateChange(state, action) {
     if (action.type == 'INIT') {
-      return phrase.map((word) => [[...word].map(() => '')])
+      return phrase.map((word) => [...word].map(() => ''))
     }
     else if(action.type=='INITREFRESH'){
       return state.slice(action.payload.position+1)
     }
     else if (action.type == 'CORRECT') {
-      state[action.payload.wordPos][action.payload.letterPos] = 'correct';
+      state[action.payload.wordPos][action.payload.letterPos] = ' correct';
       return state;
     }
     else if (action.type == 'INCORRECT') {
-      state[action.payload.wordPos][action.payload.letterPos] = 'error';
+      state[action.payload.wordPos][action.payload.letterPos] = ' error';
       return state;
     }
     else if (action.type == 'REMOVEANDUPDATE') {
-      state[action.payload.wordPos][action.payload.letterPos] = 'active';
+      state[action.payload.wordPos][action.payload.letterPos] = ' active';
       state[action.payload.wordPos][action.payload.letterPos + 1] = '';
       return state;
     }
@@ -34,7 +34,7 @@ export default function TypingWindow() {
       return state;
     }
     else if (action.type == 'ACTIVE') {
-      state[action.payload.wordPos][action.payload.letterPos] = 'active';
+      state[action.payload.wordPos][action.payload.letterPos] = ' active';
       return state
     }
     else {
@@ -63,6 +63,7 @@ export default function TypingWindow() {
     setletterPosition(0)
     setWordLength(phrase[0].length)
     setWord(phrase[0])
+    setLineBreakIndex(0)
     setCursorPosition(0)
     setLetterState({
       type: 'INIT'

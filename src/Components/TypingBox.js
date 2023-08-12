@@ -3,32 +3,20 @@ import '../TypingWindow.css'
 
 export default function TypingBox(props) {
 
-  const typingboxStyle = useRef(null)
   const WordRef = useRef(null)
+  const BoxRef = useRef(null)
   const [isFocused, setFocused] = useState(true)
   let totalTime;
-  const [topPosition, setTopPosition] = useState(0)
+  // const [topPosition, setTopPosition] = useState(0)
   const [count, setCount] = useState(0)
   // console.log(props.letterState)
   //function to highlight phrase
   const StoreText = (event) => {
 
-    // console.log(WordRef.current);
-    // console.log("hello");
-    // console.log("space clicked: ", topPosition);
-    // console.log("count: ",count)
-    // console.log("word index: ", props.lineBreakIndex);
-
-    if (topPosition != WordRef?.current?.offsetTop && WordRef?.current?.offsetTop != undefined) {
-      setTopPosition(WordRef?.current?.offsetTop)
-
-      props.setLineBreakIndex(props.wordPosition - 1)
-
-    }
-
 
     if (props.wordPosition == 0 && props.letterPosition == 0) {
       props.startTime.current = Date.now()
+      setCount(0)
       console.log(Date.now());
     }
 
@@ -71,7 +59,6 @@ export default function TypingBox(props) {
       }
       else {
 
-        // typingboxStyle.current.children[props.wordPosition].children[props.letterPosition].classList.add('error')
         props.setLetterState({
           type: 'INCORRECT',
           payload: {
@@ -82,66 +69,64 @@ export default function TypingBox(props) {
       }
     }
     else if ((event.key == ' ' || props.letterPosition > props.wordLength)) {
-      props.setLetterState({
-        type: 'ACTIVE',
-        payload: {
-          'wordPos': props.wordPosition + 1,
-          'letterPos': 0
-        }
-      })
-      if (props.letterPosition !== props.wordLength) {
-        let diff = (props.wordLength) - props.letterPosition
-        props.setCursorPosition(props.cursorPosition + diff)
-        props.setLetterState({
-          type: 'REMOVE',
-          payload: {
-            'wordPos': props.wordPosition,
-            'letterPos': props.letterPosition
-          }
-        })
-      }
+      
+
       let w = document.querySelectorAll('.word')
-      console.log(props.wordPosition);
-      console.log(props.letterPosition);
-      console.log(props.wordLength);
-      console.log(props.word);
-      if (w[props.wordPosition + 1]?.offsetTop != topPosition) {;
+      let wordPos = props.wordPosition+1;
+      let wordLength = props.phrase[props.wordPosition + 1].length;
+      let word = props.phrase[props.wordPosition + 1]
+
+      console.log("top Position: "+ w[props.wordPosition]?.offsetTop);
+      console.log("current Position: "+ w[props.wordPosition+1]?.offsetTop);
+      if (w[props.wordPosition+1]?.offsetTop != w[props.wordPosition]?.offsetTop) {
+
         if (count < 1) {
+          
           setCount(prev => prev + 1)
-          props.setwordPosition(prev => prev + 1)
-          props.setletterPosition(0)
-          props.setWordLength(props.phrase[props.wordPosition + 1].length)
-          props.setWord(props.phrase[props.wordPosition + 1])
         }
         else {
-          setCount(1)
+          // Would not respond to dynamic screen size changes
+
           if (props.phrase.length > 25) {
-            let tempPhrase = props.phrase
-            tempPhrase = tempPhrase.slice(props.lineBreakIndex + 1)
-            // console.log(tempPhrase);
-            props.setPhrase(tempPhrase)
-            // console.log(tempPhrase);
-            props.setPhrase(tempPhrase)
+            
+            props.setPhrase(props.phrase.slice(props.lineBreakIndex + 1))
+          
             props.setLetterState({
               type: 'INITREFRESH',
               payload: {
                 "position":props.lineBreakIndex
               }
             })
-            // props.setwordPosition(props.wordPosition-props.lineBreakIndex)
-            // props.setletterPosition(0)
-            // props.setWordLength(props.phrase[props.wordPosition-props.lineBreakIndex].length)
-            // props.setWord(props.phrase[props.wordPosition-props.lineBreakIndex])
+          
+            wordPos = props.wordPosition-props.lineBreakIndex
+            wordLength = props.phrase[props.wordPosition+1].length
+            word = props.phrase[props.wordPosition+1]
           }
         }
+        props.setLineBreakIndex(wordPos-1)
       }
-      else{
-        setCount(prev => prev + 1)
-        props.setwordPosition(prev => prev + 1)
-        props.setletterPosition(0)
-        props.setWordLength(props.phrase[props.wordPosition + 1].length)
-        props.setWord(props.phrase[props.wordPosition + 1])
+      props.setLetterState({
+        type: 'ACTIVE',
+        payload: {
+          'wordPos': wordPos,
+          'letterPos': 0
+        }
+      })
+      if (props.letterPosition !== props.wordLength) {
+        props.setLetterState({
+          type: 'REMOVE',
+          payload: {
+            'wordPos': wordPos-1,
+            'letterPos': props.letterPosition
+          }
+        })
       }
+
+      props.setwordPosition(wordPos)
+      props.setletterPosition(0)
+      props.setWordLength(wordLength)
+      props.setWord(word)
+      
     }
     else if (event.key == 'Backspace' && props.letterPosition > 0) {
       props.setLetterState({
@@ -160,14 +145,14 @@ export default function TypingBox(props) {
   }
 
   useEffect(() => {
-    typingboxStyle.current.focus()
+    BoxRef.current.focus()
   }, [props.phrase])
 
   return (
-    <div ref={typingboxStyle} onfocus={() => setFocused(true)} onClick={(event) => { typingboxStyle.current.focus() }} className='typingBox' onKeyDown={(event) => StoreText(event)} tabIndex='0' autoFocus>
+    <div ref={BoxRef} onFocus={() => setFocused(true)} onClick={(event) => { BoxRef.current.focus() }} className='typingBox' onKeyDown={(event) => StoreText(event)} tabIndex='0' autoFocus>
       {props.phrase.map((word, w) => {
         let letterEle = word.split('')
-        return (<div className="word">{letterEle.map((letter, l) => <div className={`letter ${props.letterState[w][l]}`} ref={props.letterState[w][l] == "active" ? WordRef : null}>{letter}</div>)}</div>)
+        return (<div className="word">{letterEle.map((letter, l) => <div className={`letter${props.letterState[w][l]}`} ref={props.letterState[w][l] == "active" ? WordRef : null}>{letter}</div>)}</div>)
       })}
     </div>
   )
