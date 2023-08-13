@@ -54,6 +54,9 @@ export default function TypingWindow() {
   const[childBtnColor,setChildBtnColor] = useState(["btnColorInactive","btnColorActive","btnColorInactive","btnColorInactive"])
   const[numberofWord,setNumberofWord] = useState(25)
   const[lineBreakIndex,setLineBreakIndex] = useState()
+  const[timerValue,setTimerValue] = useState(30)
+  const numberofCorrectLetter = useRef(null)
+  const numberofIncorrectLetter = useRef(null)
 
   //function to generate phrase
   const generatephrase = (noofWord=numberofWord) => {
@@ -81,7 +84,7 @@ export default function TypingWindow() {
   }
 
   useEffect(() => {
-    generatephrase()
+    generatephrase(100)
 
   }, [])
 
@@ -90,14 +93,17 @@ export default function TypingWindow() {
     <div className="typingWindow">
       <div>
         <FeatureComponent generatePhrase = {generatephrase} timerOption={timerOption} setTimerOption={setTimerOption}
-        childBtnColor={childBtnColor} setChildBtnColor={setChildBtnColor} setNumberofWord={setNumberofWord}></FeatureComponent>
+        childBtnColor={childBtnColor} setChildBtnColor={setChildBtnColor} setNumberofWord={setNumberofWord}
+        setTimerValue={setTimerValue}
+       ></FeatureComponent>
       </div>
       <div id="typingBoxContainer">
         <TypingBox phrase={phrase} setPhrase={setPhrase} wordPosition={wordPosition} setwordPosition={setwordPosition}
           setletterPosition={setletterPosition} setWordLength={setWordLength} setWord={setWord}
           setCursorPosition={setCursorPosition} letterPosition={letterPosition} wordLength={wordLength} word={word}
           cursorPosition={cursorPosition} startTime={startTime} letterState={letterState} setLetterState={setLetterState}
-          lineBreakIndex={lineBreakIndex} setLineBreakIndex={setLineBreakIndex}></TypingBox>
+          lineBreakIndex={lineBreakIndex} setLineBreakIndex={setLineBreakIndex} numberofWord = {numberofWord}
+          timerOption={timerOption} timerValue={timerValue} numberofCorrectLetter={numberofCorrectLetter}></TypingBox>
       </div>
       <div onClick={()=>generatephrase()}>
         <ButtonIcon></ButtonIcon>

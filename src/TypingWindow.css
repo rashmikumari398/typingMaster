@@ -14,6 +14,7 @@
   max-height: 170px;
   overflow: hidden;
   transition: all 0.25s ease 0s, transform 0.05s ease 0s;
+  margin-bottom: 24px;
 }
 #buttonContainer{
   margin-bottom: 3rem;

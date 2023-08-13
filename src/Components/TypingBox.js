@@ -11,31 +11,38 @@ export default function TypingBox(props) {
   const [count, setCount] = useState(0)
   // console.log(props.letterState)
   //function to highlight phrase
-  const StoreText = (event) => {
+  const calculateWPM=()=>{
+    totalTime = Date.now() - props.startTime.current
+    totalTime = totalTime / 1000
+    totalTime = totalTime / (60)
+    let numberofcorrect = 0
+    for (let i of props.letterState[props.wordPosition]){
+      if(i==' correct'){
+        numberofcorrect++
+      }
+    }
+    numberofcorrect = props.numberofCorrectLetter.current + numberofcorrect
+    console.log('total word: ', numberofcorrect/5);
+    console.log("wpm: ", (numberofcorrect/5) / totalTime);
+    props.setwordPosition(props.phrase.length)
+  }
 
+
+  const StoreText = (event) => {
 
     if (props.wordPosition == 0 && props.letterPosition == 0) {
       props.startTime.current = Date.now()
+      if(!props.timerOption){
+        setTimeout(calculateWPM,props.timerValue*1000)
+      }
       setCount(0)
+      props.numberofCorrectLetter.current = 0
       console.log(Date.now());
     }
 
-    if (props.wordPosition == props.phrase.length - 1 && props.letterPosition == props.wordLength - 1) {
-      console.log("end ", props.startTime.current);
-      totalTime = Date.now() - props.startTime.current
-      console.log('totalTime: ', totalTime);
-      totalTime = totalTime / 1000
-      totalTime = totalTime / (60)
-      console.log('totalTime: ', totalTime);
-      console.log("wpm: ", props.phrase.length / totalTime);
-      console.log(props.lineBreakIndex[0]);
-    }
-
-
-
 
     // let letterEle = document.querySelectorAll('.letter')
-    if (props.letterPosition < props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
+    if (props.wordPosition<=props.phrase.length-1 && props.letterPosition < props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
       props.setletterPosition(prev => prev + 1)
       props.setCursorPosition(prev => prev + 1)
       props.setLetterState({
@@ -68,16 +75,22 @@ export default function TypingBox(props) {
         })
       }
     }
-    else if ((event.key == ' ' || props.letterPosition > props.wordLength)) {
+    else if ((event.key == ' ' || props.letterPosition > props.wordLength) && props.wordPosition<props.phrase.length-1) {
       
-
+      // console.log(props.wordPosition);
+      let numberofcorrect = 0
+      for (let i of props.letterState[props.wordPosition]){
+        if(i==' correct'){
+          numberofcorrect++
+        }
+      }
+      props.numberofCorrectLetter.current=props.numberofCorrectLetter.current+numberofcorrect
+      
       let w = document.querySelectorAll('.word')
       let wordPos = props.wordPosition+1;
       let wordLength = props.phrase[props.wordPosition + 1].length;
       let word = props.phrase[props.wordPosition + 1]
 
-      console.log("top Position: "+ w[props.wordPosition]?.offsetTop);
-      console.log("current Position: "+ w[props.wordPosition+1]?.offsetTop);
       if (w[props.wordPosition+1]?.offsetTop != w[props.wordPosition]?.offsetTop) {
 
         if (count < 1) {
@@ -128,7 +141,7 @@ export default function TypingBox(props) {
       props.setWord(word)
       
     }
-    else if (event.key == 'Backspace' && props.letterPosition > 0) {
+    else if (props.wordPosition<=props.phrase.length-1 && event.key == 'Backspace' && props.letterPosition > 0) {
       props.setLetterState({
         type: 'REMOVEANDUPDATE',
         payload: {
@@ -137,12 +150,15 @@ export default function TypingBox(props) {
         }
       })
       props.setletterPosition(prev => prev - 1)
-
-      console.log("word position: ", props.letterPosition)
       props.setCursorPosition(props.cursorPosition - 1)
+    }
+    else if (props.wordPosition == props.phrase.length-1 && event.key == ' ' ) {
+      calculateWPM()
     }
 
   }
+
+
 
   useEffect(() => {
     BoxRef.current.focus()

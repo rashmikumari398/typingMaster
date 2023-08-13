@@ -13,10 +13,10 @@ export default function FeatureComponent(props) {
     const[wordbtnColor,setWordBtnColor] = useState('btnColorInactive')
 
     const timerOptionElement = <div className="join">
-    <button className="btn join-item btn-timer" >15</button>
-    <button className="btn join-item btn-timer">30</button>
-    <button className="btn join-item btn-timer">60</button>
-    <button className="btn join-item btn-timer">120</button>
+    <button className={`btn join-item btn-timer ${props.childBtnColor[0]}`} value='15' onClick={(event)=>generatePhraseBasedOnWordCount(event)} >15</button>
+    <button className={`btn join-item btn-timer ${props.childBtnColor[1]}`} value='30' onClick={(event)=>generatePhraseBasedOnWordCount(event)}>30</button>
+    <button className={`btn join-item btn-timer ${props.childBtnColor[2]}`} value='60' onClick={(event)=>generatePhraseBasedOnWordCount(event)}>60</button>
+    <button className={`btn join-item btn-timer ${props.childBtnColor[3]}`} value='120' onClick={(event)=>generatePhraseBasedOnWordCount(event)}>120</button>
     </div>
 
     const wordOptionElement = <div className="join">
@@ -32,8 +32,9 @@ export default function FeatureComponent(props) {
             setTimerBtnColor("btnColorActive")
             setWordBtnColor("btnColorInactive")
         }
-        props.generatePhrase(30)
-        props.setNumberofWord(25)
+        props.generatePhrase(100)
+        props.setNumberofWord(100)
+        props.setChildBtnColor(["btnColorInactive","btnColorActive","btnColorInactive","btnColorInactive"])
     }
     const updateWordBtnStyle=(event)=>{
         props.setTimerOption(true)
@@ -46,11 +47,16 @@ export default function FeatureComponent(props) {
     }
 
     const generatePhraseBasedOnWordCount=(event)=>{
-        props.generatePhrase(Number(event.target.value))
-        let valueArray = [10,25,50,100]
+        let numberOfWord = props.timerOption?Number(event.target.value): 200 * (Number(event.target.value)/60)
+        if (!props.timerOption){
+            props.setTimerValue(Number(event.target.value))
+        }
+        console.log(numberOfWord);
+        props.generatePhrase(numberOfWord)
+        props.setNumberofWord(numberOfWord)
+        let valueArray = props.timerOption?[10,25,50,100]:[15,30,60,120]
         let index = valueArray.indexOf(Number(event.target.value))
         let childBtnColortemp=[]
-        props.setNumberofWord(Number(event.target.value))
         for (let i in props.childBtnColor){
             if(i==index){
                 childBtnColortemp.push("btnColorActive")
