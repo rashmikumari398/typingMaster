@@ -8,12 +8,20 @@
     outline: none;
     
 }
+#displayProgressContainer{
+  display:flex;
+  width:80rem;
+  color: #E2B714;
+  font-size: 1.4rem;
+  justify-content: flex-start;
+}
 #typingBoxContainer{
-  margin-top: 50px;
+  margin-top: 30px;
   max-width:80rem;
   max-height: 170px;
   overflow: hidden;
   transition: all 0.25s ease 0s, transform 0.05s ease 0s;
+  margin-bottom: 24px;
 }
 #buttonContainer{
   margin-bottom: 3rem;
@@ -60,4 +68,7 @@
 }
 .error{
   color: red;
+}
+.extra-error{
+  color:#DD4A68
 }

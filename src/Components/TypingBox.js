@@ -7,37 +7,68 @@ export default function TypingBox(props) {
   const BoxRef = useRef(null)
   const [isFocused, setFocused] = useState(true)
   let totalTime;
-  // const [topPosition, setTopPosition] = useState(0)
+  const[interval,setIntervalValue]=useState(null);
+  const[timeout, setTimeOut]=useState(null);
   const [count, setCount] = useState(0)
-  // console.log(props.letterState)
-  //function to highlight phrase
-  const StoreText = (event) => {
+  
+  const calculateWPM=()=>{
+    setIntervalValue(clearInterval(interval))
+    setTimeOut(clearTimeout(timeout))
+    totalTime = Date.now() - props.startTime.current
+    totalTime = totalTime / 1000
+    totalTime = totalTime / (60)
+    let numberofcorrect = 0
+    let numberofIncorrect = 0
+    // let numberofMissedLetter = 0
+    for (let i of props.letterState[props.wordPosition]){
+      if(i==' correct'){
+        numberofcorrect++
+      }
+      else if(i==' error'){
+        numberofIncorrect++
+      }
+    }
+    numberofcorrect = props.numberofCorrectLetter.current + numberofcorrect
+    numberofIncorrect = props.numberofIncorrectLetter.current + numberofIncorrect
+    console.log("total incorrect Word: ",numberofIncorrect);
+    console.log("total correct word: ", numberofcorrect);
 
+    console.log('total word: ', numberofcorrect/5);
+    console.log("wpm: ", (numberofcorrect/5) / totalTime);
+    props.numberofCorrectLetter.current = numberofcorrect
+    props.numberofIncorrectLetter.current = numberofIncorrect
+    // props.numberofMissedLetter.current = numberofMissedLetter
+    props.setWpm((numberofcorrect/5) / totalTime)
+    props.setDisplayResultWindow(true)
+    props.setwordPosition(props.phrase.length)
+  }
+
+
+  const StoreText = (event) => {
 
     if (props.wordPosition == 0 && props.letterPosition == 0) {
       props.startTime.current = Date.now()
+      setIntervalValue(clearInterval(interval))
+      setTimeOut(clearTimeout(timeout))
+      if(!props.timerOption){
+        setTimeOut(setTimeout(calculateWPM,(props.timerValue+1)*1000))
+        setIntervalValue(setInterval(() => {
+          props.setTimerValue(prev=>prev-1)
+        }, 1000));
+      }
+      props.setTimer(true)
       setCount(0)
+      props.numberofCorrectLetter.current = 0
+      props.numberofIncorrectLetter.current=0
+      props.numberofExtraLetter.current = 0
+      props.numberofMissedLetter.current = 0
       console.log(Date.now());
     }
 
-    if (props.wordPosition == props.phrase.length - 1 && props.letterPosition == props.wordLength - 1) {
-      console.log("end ", props.startTime.current);
-      totalTime = Date.now() - props.startTime.current
-      console.log('totalTime: ', totalTime);
-      totalTime = totalTime / 1000
-      totalTime = totalTime / (60)
-      console.log('totalTime: ', totalTime);
-      console.log("wpm: ", props.phrase.length / totalTime);
-      console.log(props.lineBreakIndex[0]);
-    }
-
-
-
 
     // let letterEle = document.querySelectorAll('.letter')
-    if (props.letterPosition < props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
+    if ((props.wordPosition<=props.phrase.length-1) && props.letterPosition < props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
       props.setletterPosition(prev => prev + 1)
-      props.setCursorPosition(prev => prev + 1)
       props.setLetterState({
         type: 'ACTIVE',
         payload: {
@@ -55,6 +86,10 @@ export default function TypingBox(props) {
             'letterPos': props.letterPosition
           }
         })
+        
+        if(props.wordPosition==props.phrase.length-1 && props.letterPosition == props.wordLength-1){
+          calculateWPM()
+        }
 
       }
       else {
@@ -68,16 +103,37 @@ export default function TypingBox(props) {
         })
       }
     }
-    else if ((event.key == ' ' || props.letterPosition > props.wordLength)) {
+    else if ((event.key == ' ') && props.wordPosition<props.phrase.length-1) {
+      console.log(props.letterState[props.wordPosition]);
+      if(props.timerOption){
+        props.setWordCounter(prev=>prev+1)
+      }
       
-
+      let numberofcorrect = 0
+      let numberofIncorrect = 0
+      let numberofMissedLetter = 0
+      for (let i of props.letterState[props.wordPosition]){
+        if(i==' correct'){
+          numberofcorrect++
+        }
+        else if(i==' error'){
+          numberofIncorrect++
+        }
+        else if(i===''){
+          numberofMissedLetter++
+        }
+      }
+      props.numberofCorrectLetter.current=props.numberofCorrectLetter.current+numberofcorrect
+      props.numberofIncorrectLetter.current = props.numberofIncorrectLetter.current+numberofIncorrect
+      if(props.letterState[props.wordPosition].length==props.wordLength){
+        props.numberofMissedLetter.current = props.numberofMissedLetter.current + numberofMissedLetter + 1
+      }
+      console.log(numberofMissedLetter);
       let w = document.querySelectorAll('.word')
       let wordPos = props.wordPosition+1;
       let wordLength = props.phrase[props.wordPosition + 1].length;
       let word = props.phrase[props.wordPosition + 1]
 
-      console.log("top Position: "+ w[props.wordPosition]?.offsetTop);
-      console.log("current Position: "+ w[props.wordPosition+1]?.offsetTop);
       if (w[props.wordPosition+1]?.offsetTop != w[props.wordPosition]?.offsetTop) {
 
         if (count < 1) {
@@ -128,7 +184,18 @@ export default function TypingBox(props) {
       props.setWord(word)
       
     }
-    else if (event.key == 'Backspace' && props.letterPosition > 0) {
+    else if (props.wordPosition<=props.phrase.length-1 && event.key == 'Backspace' && props.letterPosition > 0) {
+      let w = document.querySelectorAll('.word')
+      console.log("extra error class");
+      // console.log(props.numberofIncorrectLetter.current + props.numberofCorrectLetter.current);
+      console.log(w[props.wordPosition].childNodes[props.letterPosition-1].className);
+      // console.log(w[props.numberofIncorrectLetter.current + props.numberofCorrectLetter.current].className);
+      if(w[props.wordPosition].childNodes[props.letterPosition-1].className=='letter extra-error'){
+        console.log('extra word is present');
+        let tempPhrase = props.phrase
+        tempPhrase[props.wordPosition] = tempPhrase[props.wordPosition].slice(0,props.letterPosition-1)
+        props.numberofExtraLetter.current = props.numberofExtraLetter.current - 1
+      }
       props.setLetterState({
         type: 'REMOVEANDUPDATE',
         payload: {
@@ -137,12 +204,29 @@ export default function TypingBox(props) {
         }
       })
       props.setletterPosition(prev => prev - 1)
-
-      console.log("word position: ", props.letterPosition)
       props.setCursorPosition(props.cursorPosition - 1)
     }
+    else if ((props.wordPosition<=props.phrase.length-1) && props.letterPosition >= props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter'){
+      let tempPhrase = props.phrase
+      tempPhrase[props.wordPosition] = tempPhrase[props.wordPosition] + event.key
+      props.setPhrase(tempPhrase)
+      props.setletterPosition(prev => prev + 1)
+      
+      console.log('word index: ',props.letterPosition);
+      props.setLetterState({
+        type: 'ADDEXTRALETTER',
+        payload: {
+          'wordPos': props.wordPosition,
+          'letterPos': props.letterPosition
+        }
+      })
+      props.numberofExtraLetter.current = props.numberofExtraLetter.current + 1
+    }
+
 
   }
+
+
 
   useEffect(() => {
     BoxRef.current.focus()
