@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import '../TypingWindow.css'
 import PointerComponent from './PointerComponent'
+import '../Utils/AllowedLettersWords'
+import AllowedLettersWords from '../Utils/AllowedLettersWords'
+import AllowedLetterList from '../Utils/AllowedLettersWords'
 
 export default function TypingBox(props) {
 
@@ -9,6 +12,7 @@ export default function TypingBox(props) {
   const [isFocused, setFocused] = useState(true)
   let totalTime;
   const [count, setCount] = useState(0)
+  const [wordRefState, setWordRefState] = useState(WordRef)
 
   const calculateWPM = () => {
     clearInterval(props.interval)
@@ -44,6 +48,7 @@ export default function TypingBox(props) {
 
 
   const StoreText = (event) => {
+
     if (props.wordPosition == 0 && props.letterPosition == 0) {
       props.startTime.current = Date.now()
       props.setTimerCounter(props.timerValue)
@@ -64,7 +69,7 @@ export default function TypingBox(props) {
 
 
     // let letterEle = document.querySelectorAll('.letter')
-    if ((props.wordPosition <= props.phrase.length - 1) && props.letterPosition < props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
+    if ((props.wordPosition <= props.phrase.length - 1) && props.letterPosition < props.wordLength && AllowedLetterList.has(event.which)) {
       props.setletterPosition(prev => prev + 1)
       props.setLetterState({
         type: 'ACTIVE',
@@ -182,11 +187,11 @@ export default function TypingBox(props) {
     }
     else if (props.wordPosition <= props.phrase.length - 1 && event.key == 'Backspace' && props.letterPosition > 0) {
       let w = document.querySelectorAll('.word')
-      console.log("extra error class");
-      console.log("letter position: ",props.letterPosition - 2);
-      // console.log(w[props.wordPosition].childNodes[props.letterPosition - 1].childNodes[0].className);
-      if (w[props.wordPosition].childNodes[props.letterPosition - 1].childNodes[0].className.includes('extra-word')) {
-        console.log('extra word is present');
+      // console.log("extra error class");
+      // console.log("letter position: ",props.letterPosition - 2);
+      console.log(w[props.wordPosition].childNodes[props.letterPosition - 1].className);
+      if (w[props.wordPosition].childNodes[props.letterPosition - 1].className.includes('extra-word')) {
+        // console.log('extra word is present');
         let tempPhrase = props.phrase
         tempPhrase[props.wordPosition] = tempPhrase[props.wordPosition].slice(0, props.letterPosition - 1)
         props.numberofExtraLetter.current = props.numberofExtraLetter.current - 1
@@ -201,7 +206,7 @@ export default function TypingBox(props) {
       props.setletterPosition(prev => prev - 1)
       props.setCursorPosition(props.cursorPosition - 1)
     }
-    else if ((props.wordPosition <= props.phrase.length - 1) && props.letterPosition >= props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
+    else if ((props.wordPosition <= props.phrase.length - 1) && props.letterPosition >= props.wordLength && AllowedLetterList.has(event.which)) {
       let tempPhrase = props.phrase
       tempPhrase[props.wordPosition] = tempPhrase[props.wordPosition] + event.key
       props.setPhrase(tempPhrase)
@@ -222,25 +227,24 @@ export default function TypingBox(props) {
   }
 
 
-
   useEffect(() => {
     BoxRef.current.focus()
   }, [props.phrase])
 
-  return (
-    <div ref={BoxRef} onFocus={() => setFocused(true)} onClick={(event) => { BoxRef.current.focus() }} onKeyDown={(event) => StoreText(event)} className='typingBox' tabIndex='0' autoFocus>
-      {props.phrase.map((word, w) => {
+  return (<>
+    <div ref={BoxRef} onFocus={() => setFocused(true)} onClick={(event) => { BoxRef.current.focus() }} onKeyDown={(event) => StoreText(event)} className='typingBox' tabIndex={0} autoFocus>
+    <PointerComponent WordRef = {WordRef}></PointerComponent>
+    {props.phrase.map((word, w) => {
         let letterEle = word.split('')
-        return (<div className="word">{letterEle.map((letter, l) => {
-          return (<div className="addPointer">
-            {props.letterState[w][l]===" active" ? <PointerComponent></PointerComponent> : null}
-            <div className={`letter${props.letterState[w][l]}`} ref={props.letterState[w][l] == "active" ? WordRef : null}>{letter}</div>
-            {props.letterState[w][l].includes("activeRight") ? <PointerComponent></PointerComponent> : null}
-          </div>)
-        })
+        return (
+        <div className="word">{letterEle.map((letter, l) => {
+          return (
+          
+            <div className={`letter${props.letterState[w][l]}`} ref={(props.letterState[w][l].includes("active") || props.letterState[w][l].includes("activeRight")) ? WordRef : null}>{letter}</div>
+        )})
         }</div>)
       })}
     </div>
-
+  </>
   )
 }

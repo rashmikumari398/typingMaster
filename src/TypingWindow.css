@@ -28,7 +28,7 @@
 }
 #typingBoxContainer{
   overflow: hidden;
-  transition: all 0.25s ease 0s, transform 0.05s ease 0s;
+  /* transition: all 0.25s ease 0s, transform 0.05s ease 0s; */
   /* margin-bottom: 24px; */
   margin: 0 5% 24px 8%;
 }

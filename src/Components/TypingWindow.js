@@ -12,7 +12,9 @@ export default function TypingWindow() {
 
   function handleLetterStateChange(state, action) {
     if (action.type == 'INIT') {
-      return phrase.map((word) => [...word].map(() => ''))
+      let init_state = phrase.map((word) => [...word].map(() => ''))
+      init_state[0][0] = ' active';
+      return init_state;
     }
     else if (action.type == 'INITREFRESH') {
       return state.slice(action.payload.position + 1)
@@ -231,7 +233,7 @@ export default function TypingWindow() {
           </div>
         </div>
       }
-      <div onClick={() => generatephrase()}>
+      <div onClick={() => generatephrase()} tabIndex={0} style={{padding: "10px", marginInline:"auto", maxWidth:"fit-content"}}>
         <ButtonIcon></ButtonIcon>
       </div>
 

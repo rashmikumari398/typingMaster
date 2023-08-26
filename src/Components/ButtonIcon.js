@@ -28,7 +28,7 @@ export default function ButtonIcon(props) {
     return (
 
         <div className="tooltip tooltip-bottom" data-tip="Restart Test">
-            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill={color} className="bi bi-arrow-clockwise" viewBox="0 0 16 16"
+            <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" fill={color} className="bi bi-arrow-clockwise" viewBox="0 0 16 16"
                 onMouseOver={() => setColor("#FFFFFF")}
                 onMouseOut={() => setColor("gray")}>
                 <path fillRule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
