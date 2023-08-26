@@ -3,25 +3,34 @@
     color: rgb(104, 104, 104);
     display: flex;
     flex-direction: row;
+    justify-content: flex-start;
     flex-wrap: wrap;
     cursor: default;
     outline: none;
+    max-width:83rem;
+    max-height: 170px;
     
+}
+.addPointer{
+  display: flex;
+  flex-direction: row;
+
 }
 #displayProgressContainer{
   display:flex;
+  /* margin-top: 15px; */
   width:80rem;
+  height: 35px;
   color: #E2B714;
   font-size: 1.4rem;
   justify-content: flex-start;
+  margin: 15px 5% 0 8%;
 }
 #typingBoxContainer{
-  margin-top: 30px;
-  max-width:80rem;
-  max-height: 170px;
   overflow: hidden;
   transition: all 0.25s ease 0s, transform 0.05s ease 0s;
-  margin-bottom: 24px;
+  /* margin-bottom: 24px; */
+  margin: 0 5% 24px 8%;
 }
 #buttonContainer{
   margin-bottom: 3rem;
@@ -29,22 +38,24 @@
 .word{
   display: flex;
   flex-direction: row;
-  padding: 4px
+  padding: 5px 5px 5px 0px;
+  margin-left: 3px;
 }
 .letter {
   font-size: 2rem;
   transition: all 0.25s ease 0s, transform 0.05s ease 0s;
+  border-left:2.3px solid #323437
 }
 .active{
-  border-left: 3px solid #E2B714;
+  /* border-left-color: #E2B714;
   animation-name: pointer;
   animation-duration: 1.1s;
-  animation-iteration-count: infinite;
+  animation-iteration-count: infinite; */
 }
 
 @keyframes pointer{
-  from{border-left:3px solid #E2B714}
-  to{border-left:3px solid #323437}
+  from{border-left-color:#E2B714}
+  to{border-left-color:#323437}
   
 }
 
@@ -69,6 +80,6 @@
 .error{
   color: red;
 }
-.extra-error{
+.extra-word{
   color:#DD4A68
 }

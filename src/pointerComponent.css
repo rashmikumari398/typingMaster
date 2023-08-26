@@ -1,0 +1,25 @@
+.pointer{
+    width:3px;
+    height:40px;
+    margin-top: 3px;
+    background-color: #E2B714;
+    animation-name: pointer1;
+    animation-duration: 1.1s;
+    animation-iteration-count: infinite;
+    z-index: 5;
+    position: relative;
+}
+
+@keyframes pointer1{
+    from{background-color:#E2B714}
+    to{background-color:#323437}
+    
+  }
+
+[contentEditable=true]:empty:not(:focus):before {
+    content: attr(data-text)
+  }
+
+[contentEditable=true]:empty:focus:after {
+    content: attr(data-text)
+  }
