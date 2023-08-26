@@ -6,6 +6,7 @@ import TypingBox from './TypingBox'
 import ButtonIcon from './ButtonIcon'
 import FeatureComponent from './FeatureComponent';
 import ResultWindow from './ResultWindow'
+import StatusComponent from './StatusComponent'
 
 export default function TypingWindow() {
 
@@ -17,30 +18,52 @@ export default function TypingWindow() {
       return state.slice(action.payload.position + 1)
     }
     else if (action.type == 'CORRECT') {
-      state[action.payload.wordPos][action.payload.letterPos] = ' correct';
+      if (action.payload.letterPos === wordLength - 1) {
+        state[action.payload.wordPos][action.payload.letterPos] = ' correct activeRight';
+      }
+      else {
+        state[action.payload.wordPos][action.payload.letterPos] = ' correct';
+      }
       return state;
     }
     else if (action.type == 'INCORRECT') {
-      state[action.payload.wordPos][action.payload.letterPos] = ' error';
+      if (action.payload.letterPos === wordLength - 1) {
+        state[action.payload.wordPos][action.payload.letterPos] = ' error activeRight';
+      }
+      else {
+        state[action.payload.wordPos][action.payload.letterPos] = ' error';
+      }
       return state;
     }
     else if (action.type == 'REMOVEANDUPDATE') {
-      state[action.payload.wordPos][action.payload.letterPos] = ' active';
+      if (action.payload.letterPos > wordLength - 1) {
+        state[action.payload.wordPos][action.payload.letterPos - 1] = state[action.payload.wordPos][action.payload.letterPos - 1] + ' activeRight'
+      }
+      else {
+        state[action.payload.wordPos][action.payload.letterPos] = ' active';
+      }
       state[action.payload.wordPos][action.payload.letterPos + 1] = '';
       return state;
     }
     else if (action.type == 'REMOVE') {
-      // state[action.payload.wordPos][action.payload.letterPos] = 'active';
+      state[action.payload.wordPos][action.payload.letterPos] = ' active';
       state[action.payload.wordPos][action.payload.letterPos] = '';
       return state;
     }
     else if (action.type == 'ACTIVE') {
+      if (action.payload.wordPos != 0 && action.payload.letterPos == 0) {
+        for (let i = 0; i < state[action.payload.wordPos - 1].length; i++) {
+          if (state[action.payload.wordPos - 1][i].includes("activeRight")) {
+            state[action.payload.wordPos - 1][i] = state[action.payload.wordPos - 1][i].replace("activeRight", '')
+          }
+        }
+      }
       state[action.payload.wordPos][action.payload.letterPos] = ' active';
       return state
     }
-    else if(action.type=='ADDEXTRALETTER'){
-      state[action.payload.wordPos][action.payload.letterPos] =' extra-error'
-      state[action.payload.wordPos][action.payload.letterPos+1]=' active'
+    else if (action.type == 'ADDEXTRALETTER') {
+      state[action.payload.wordPos][action.payload.letterPos - 1] = state[action.payload.wordPos][action.payload.letterPos - 1].replace('activeRight', '')
+      state[action.payload.wordPos][action.payload.letterPos] = ' extra-word activeRight'
       return state
     }
     else {
@@ -56,23 +79,30 @@ export default function TypingWindow() {
   const [cursorPosition, setCursorPosition] = useState(0)
   const startTime = useRef(0)
   const [letterState, setLetterState] = useReducer(handleLetterStateChange, [])
-  const [timerOption, setTimerOption] = useState(false)
+  const [wordOption, setwordOption] = useState(false)
   const [childBtnColor, setChildBtnColor] = useState(["btnColorInactive", "btnColorActive", "btnColorInactive", "btnColorInactive"])
   const [numberofWord, setNumberofWord] = useState(25)
   const [lineBreakIndex, setLineBreakIndex] = useState()
   const [timerValue, setTimerValue] = useState(30)
   const [timer, setTimer] = useState(false)
+  const [interval, setIntervalValue] = useState(null);
+  const [timeout, setTimeOut] = useState(null);
   const numberofCorrectLetter = useRef(null)
   const numberofIncorrectLetter = useRef(null)
   const numberofExtraLetter = useRef(null)
   const numberofMissedLetter = useRef(null)
-  const [wpm,setWpm] = useState(0)
+  const [wpm, setWpm] = useState(0)
   const [wordCounter, setWordCounter] = useState(0)
+  const [timerCounter, setTimerCounter] = useState(timerValue)
   const [displayResultWindow, setDisplayResultWindow] = useState(false)
+  const [pointerPosition, setPointerPosition] = useState(0)
+  const [timerbtnColor, setTimerBtnColor] = useState('btnColorActive')
+  const [wordbtnColor, setWordBtnColor] = useState('btnColorInactive')
 
   //function to generate phrase
   const generatephrase = (noofWord = numberofWord) => {
     let phrase = generate({ minLength: 1, maxLength: 7, exactly: noofWord })
+    console.log("timer calue: ", wordOption);
     setPhrase(phrase)
     setwordPosition(0)
     setletterPosition(0)
@@ -83,8 +113,12 @@ export default function TypingWindow() {
     setTimer(false)
     setWordCounter(0)
     setNumberofWord(noofWord)
-    numberofCorrectLetter.current=0
-    numberofIncorrectLetter.current=0
+    numberofCorrectLetter.current = 0
+    numberofIncorrectLetter.current = 0
+    setPointerPosition(0)
+    clearInterval(interval)
+    clearTimeout(timeout)
+    setDisplayResultWindow(false)
     setLetterState({
       type: 'INIT'
     })
@@ -101,8 +135,8 @@ export default function TypingWindow() {
   }
 
   useEffect(() => {
-    generatephrase()
-
+    generatephrase(100)
+    // setwordOption(false)
   }, [])
 
   const typingWindow = ''
@@ -111,33 +145,39 @@ export default function TypingWindow() {
   return (
     <div>
       { displayResultWindow ? <ResultWindow
-      numberofCorrectLetter={numberofCorrectLetter}
-      numberofIncorrectLetter={numberofIncorrectLetter} wpm={wpm} numberofExtraLetter={numberofExtraLetter}
-      numberofMissedLetter={numberofMissedLetter}></ResultWindow> : <div className="typingWindow"><div>
-        <FeatureComponent generatePhrase={generatephrase} timerOption={timerOption} setTimerOption={setTimerOption}
-          childBtnColor={childBtnColor} setChildBtnColor={setChildBtnColor} setNumberofWord={setNumberofWord}
-          setTimerValue={setTimerValue}
-        ></FeatureComponent>
-      </div>
-        <div id='displayProgressContainer'>
-          {timerOption ? (timer ? `${wordCounter}/${numberofWord}` : '') : (timer ? timerValue : '')}
+        numberofCorrectLetter={numberofCorrectLetter}
+        numberofIncorrectLetter={numberofIncorrectLetter} wpm={wpm} numberofExtraLetter={numberofExtraLetter}
+        numberofMissedLetter={numberofMissedLetter} wordOption={wordOption}
+        numberofWord={numberofWord} timerValue={timerValue}></ResultWindow> : <div><div className="typingWindow">
+          <FeatureComponent generatePhrase={generatephrase} wordOption={wordOption} setwordOption={setwordOption}
+            childBtnColor={childBtnColor} setChildBtnColor={setChildBtnColor} setNumberofWord={setNumberofWord}
+            setTimerValue={setTimerValue} setTimerCounter={setTimerCounter} interval={interval} setIntervalValue={setIntervalValue} timeout={timeout}
+            setTimeOut={setTimeOut} timerbtnColor={timerbtnColor} setTimerBtnColor={setTimerBtnColor}
+            setWordBtnColor={setWordBtnColor} wordbtnColor={wordbtnColor}
+          ></FeatureComponent>
         </div>
-        <div id="typingBoxContainer">
-          <TypingBox phrase={phrase} setPhrase={setPhrase} wordPosition={wordPosition} setwordPosition={setwordPosition}
-            setletterPosition={setletterPosition} setWordLength={setWordLength} setWord={setWord}
-            setCursorPosition={setCursorPosition} letterPosition={letterPosition} wordLength={wordLength} word={word}
-            cursorPosition={cursorPosition} startTime={startTime} letterState={letterState} setLetterState={setLetterState}
-            lineBreakIndex={lineBreakIndex} setLineBreakIndex={setLineBreakIndex} numberofWord={numberofWord}
-            timerOption={timerOption} timerValue={timerValue} numberofCorrectLetter={numberofCorrectLetter}
-            numberofIncorrectLetter={numberofIncorrectLetter} setTimer={setTimer} setTimerValue={setTimerValue}
-            setWordCounter={setWordCounter} setDisplayResultWindow={setDisplayResultWindow} setWpm={setWpm}
-            numberofExtraLetter={numberofExtraLetter} numberofMissedLetter={numberofMissedLetter}></TypingBox>
+          <StatusComponent wordOption={wordOption} timer={timer} wordCounter={wordCounter}
+            numberofWord={numberofWord} timerCounter={timerCounter}></StatusComponent>
+          <div id="typingBoxContainer">
+
+            <TypingBox phrase={phrase} setPhrase={setPhrase} wordPosition={wordPosition} setwordPosition={setwordPosition}
+              setletterPosition={setletterPosition} setWordLength={setWordLength} setWord={setWord}
+              setCursorPosition={setCursorPosition} letterPosition={letterPosition} wordLength={wordLength} word={word}
+              cursorPosition={cursorPosition} startTime={startTime} letterState={letterState} setLetterState={setLetterState}
+              lineBreakIndex={lineBreakIndex} setLineBreakIndex={setLineBreakIndex} numberofWord={numberofWord}
+              wordOption={wordOption} timerValue={timerValue} numberofCorrectLetter={numberofCorrectLetter}
+              numberofIncorrectLetter={numberofIncorrectLetter} setTimer={setTimer} setTimerValue={setTimerValue}
+              setWordCounter={setWordCounter} setDisplayResultWindow={setDisplayResultWindow} setWpm={setWpm}
+              numberofExtraLetter={numberofExtraLetter} numberofMissedLetter={numberofMissedLetter}
+              setTimerCounter={setTimerCounter} interval={interval} setIntervalValue={setIntervalValue} timeout={timeout}
+              setTimeOut={setTimeOut} setPointerPosition={setPointerPosition} pointerPosition={pointerPosition}></TypingBox>
+          </div>
         </div>
-        <div onClick={() => generatephrase()}>
-          <ButtonIcon></ButtonIcon>
-        </div>
-      </div>
       }
+      <div onClick={() => generatephrase()}>
+        <ButtonIcon></ButtonIcon>
+      </div>
+
     </div>
 
 
