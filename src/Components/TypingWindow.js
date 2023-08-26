@@ -79,11 +79,31 @@ export default function TypingWindow() {
   const [cursorPosition, setCursorPosition] = useState(0)
   const startTime = useRef(0)
   const [letterState, setLetterState] = useReducer(handleLetterStateChange, [])
-  const [wordOption, setwordOption] = useState(false)
-  const [childBtnColor, setChildBtnColor] = useState(["btnColorInactive", "btnColorActive", "btnColorInactive", "btnColorInactive"])
-  const [numberofWord, setNumberofWord] = useState(25)
+  const [wordOption, setwordOption] = useState(() => {
+    if (JSON.parse(localStorage.getItem('isUserPreferTypingBasedOnWord'))) {
+      return JSON.parse(localStorage.getItem('isUserPreferTypingBasedOnWord'))
+    }
+    else {
+      return false
+    }
+  })
+  const [numberofWord, setNumberofWord] = useState(() => {
+    if (JSON.parse(localStorage.getItem("numberOfWordPreference"))) {
+      return JSON.parse(localStorage.getItem("numberOfWordPreference"))
+    }
+    else {
+      return 25
+    }
+  })
   const [lineBreakIndex, setLineBreakIndex] = useState()
-  const [timerValue, setTimerValue] = useState(30)
+  const [timerValue, setTimerValue] = useState(() => {
+    if (JSON.parse(localStorage.getItem("timerValue"))) {
+      return JSON.parse(localStorage.getItem("timerValue"))
+    }
+    else {
+      return 30
+    }
+  })
   const [timer, setTimer] = useState(false)
   const [interval, setIntervalValue] = useState(null);
   const [timeout, setTimeOut] = useState(null);
@@ -96,8 +116,41 @@ export default function TypingWindow() {
   const [timerCounter, setTimerCounter] = useState(timerValue)
   const [displayResultWindow, setDisplayResultWindow] = useState(false)
   const [pointerPosition, setPointerPosition] = useState(0)
-  const [timerbtnColor, setTimerBtnColor] = useState('btnColorActive')
-  const [wordbtnColor, setWordBtnColor] = useState('btnColorInactive')
+  const [childBtnColor, setChildBtnColor] = useState(() => {
+    let index
+    if(wordOption){
+      index = [10, 25, 50, 100].indexOf(numberofWord)
+    }
+    else{
+      index = [15, 30, 60, 120].indexOf(timerValue)
+    }
+    let childBtnColortemp = []
+    for (let i=0;i<5;i++) {
+      if (i == index) {
+        childBtnColortemp.push("btnColorActive")
+      }
+      else {
+        childBtnColortemp.push("btnColorInactive")
+      }
+    }
+    return childBtnColortemp
+  })
+  const [timerbtnColor, setTimerBtnColor] = useState(() => {
+    if (wordOption) {
+      return 'btnColorInactive'
+    }
+    else {
+      return 'btnColorActive'
+    }
+  })
+  const [wordbtnColor, setWordBtnColor] = useState(() => {
+    if (!wordOption) {
+      return 'btnColorInactive'
+    }
+    else {
+      return 'btnColorActive'
+    }
+  })
 
   //function to generate phrase
   const generatephrase = (noofWord = numberofWord) => {
@@ -135,11 +188,15 @@ export default function TypingWindow() {
   }
 
   useEffect(() => {
-    generatephrase(100)
-    // setwordOption(false)
+    generatephrase()
   }, [])
 
-  const typingWindow = ''
+  useEffect(() => {
+    localStorage.setItem("isUserPreferTypingBasedOnWord", JSON.stringify(wordOption))
+    localStorage.setItem("numberOfWordPreference", JSON.stringify(numberofWord))
+    localStorage.setItem("timerValue", JSON.stringify(timerValue))
+  }, [wordOption, numberofWord, timerValue]);
+
 
 
   return (
