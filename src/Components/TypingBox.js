@@ -1,5 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import '../TypingWindow.css'
+import PointerComponent from './PointerComponent'
+import '../Utils/AllowedLettersWords'
+import AllowedLettersWords from '../Utils/AllowedLettersWords'
+import AllowedLetterList from '../Utils/AllowedLettersWords'
 
 export default function TypingBox(props) {
 
@@ -7,38 +11,37 @@ export default function TypingBox(props) {
   const BoxRef = useRef(null)
   const [isFocused, setFocused] = useState(true)
   let totalTime;
-  const[interval,setIntervalValue]=useState(null);
-  const[timeout, setTimeOut]=useState(null);
   const [count, setCount] = useState(0)
-  
-  const calculateWPM=()=>{
-    setIntervalValue(clearInterval(interval))
-    setTimeOut(clearTimeout(timeout))
+  const [wordRefState, setWordRefState] = useState(WordRef)
+
+  const calculateWPM = () => {
+    clearInterval(props.interval)
+    clearTimeout(props.timeout)
     totalTime = Date.now() - props.startTime.current
     totalTime = totalTime / 1000
     totalTime = totalTime / (60)
     let numberofcorrect = 0
     let numberofIncorrect = 0
     // let numberofMissedLetter = 0
-    for (let i of props.letterState[props.wordPosition]){
-      if(i==' correct'){
+    for (let i of props.letterState[props.wordPosition]) {
+      if (i == ' correct') {
         numberofcorrect++
       }
-      else if(i==' error'){
+      else if (i == ' error') {
         numberofIncorrect++
       }
     }
     numberofcorrect = props.numberofCorrectLetter.current + numberofcorrect
     numberofIncorrect = props.numberofIncorrectLetter.current + numberofIncorrect
-    console.log("total incorrect Word: ",numberofIncorrect);
+    console.log("total incorrect Word: ", numberofIncorrect);
     console.log("total correct word: ", numberofcorrect);
 
-    console.log('total word: ', numberofcorrect/5);
-    console.log("wpm: ", (numberofcorrect/5) / totalTime);
+    console.log('total word: ', numberofcorrect / 4.55);
+    console.log("wpm: ", (numberofcorrect / 4.5) / totalTime);
     props.numberofCorrectLetter.current = numberofcorrect
     props.numberofIncorrectLetter.current = numberofIncorrect
     // props.numberofMissedLetter.current = numberofMissedLetter
-    props.setWpm((numberofcorrect/5) / totalTime)
+    props.setWpm(((numberofcorrect / 4.5) / totalTime).toFixed(2))
     props.setDisplayResultWindow(true)
     props.setwordPosition(props.phrase.length)
   }
@@ -48,18 +51,17 @@ export default function TypingBox(props) {
 
     if (props.wordPosition == 0 && props.letterPosition == 0) {
       props.startTime.current = Date.now()
-      setIntervalValue(clearInterval(interval))
-      setTimeOut(clearTimeout(timeout))
-      if(!props.timerOption){
-        setTimeOut(setTimeout(calculateWPM,(props.timerValue+1)*1000))
-        setIntervalValue(setInterval(() => {
-          props.setTimerValue(prev=>prev-1)
-        }, 1000));
+      props.setTimerCounter(props.timerValue)
+      if (!props.wordOption) {
+        props.setTimeOut(setTimeout(calculateWPM, (props.timerValue + 1) * 1000))
+        // props.setIntervalValue(setInterval(() => {
+        //   props.setTimerCounter(prev => prev - 1)
+        // }, 1000));
       }
       props.setTimer(true)
       setCount(0)
       props.numberofCorrectLetter.current = 0
-      props.numberofIncorrectLetter.current=0
+      props.numberofIncorrectLetter.current = 0
       props.numberofExtraLetter.current = 0
       props.numberofMissedLetter.current = 0
       console.log(Date.now());
@@ -67,7 +69,7 @@ export default function TypingBox(props) {
 
 
     // let letterEle = document.querySelectorAll('.letter')
-    if ((props.wordPosition<=props.phrase.length-1) && props.letterPosition < props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter') {
+    if ((props.wordPosition <= props.phrase.length - 1) && props.letterPosition < props.wordLength && AllowedLetterList.has(event.which)) {
       props.setletterPosition(prev => prev + 1)
       props.setLetterState({
         type: 'ACTIVE',
@@ -86,8 +88,8 @@ export default function TypingBox(props) {
             'letterPos': props.letterPosition
           }
         })
-        
-        if(props.wordPosition==props.phrase.length-1 && props.letterPosition == props.wordLength-1){
+
+        if (props.wordPosition == props.phrase.length - 1 && props.letterPosition == props.wordLength - 1) {
           calculateWPM()
         }
 
@@ -103,63 +105,62 @@ export default function TypingBox(props) {
         })
       }
     }
-    else if ((event.key == ' ') && props.wordPosition<props.phrase.length-1) {
+    else if ((event.key == ' ') && props.wordPosition < props.phrase.length - 1) {
       console.log(props.letterState[props.wordPosition]);
-      if(props.timerOption){
-        props.setWordCounter(prev=>prev+1)
+      if (props.wordOption) {
+        props.setWordCounter(prev => prev + 1)
       }
-      
+
       let numberofcorrect = 0
       let numberofIncorrect = 0
       let numberofMissedLetter = 0
-      for (let i of props.letterState[props.wordPosition]){
-        if(i==' correct'){
+      for (let i of props.letterState[props.wordPosition]) {
+        if (i == ' correct') {
           numberofcorrect++
         }
-        else if(i==' error'){
+        else if (i.includes('error')) {
           numberofIncorrect++
         }
-        else if(i===''){
+        else if (i === '') {
           numberofMissedLetter++
         }
       }
-      props.numberofCorrectLetter.current=props.numberofCorrectLetter.current+numberofcorrect
-      props.numberofIncorrectLetter.current = props.numberofIncorrectLetter.current+numberofIncorrect
-      if(props.letterState[props.wordPosition].length==props.wordLength){
+      props.numberofCorrectLetter.current = props.numberofCorrectLetter.current + numberofcorrect
+      props.numberofIncorrectLetter.current = props.numberofIncorrectLetter.current + numberofIncorrect
+      if (props.letterState[props.wordPosition].length == props.wordLength) {
         props.numberofMissedLetter.current = props.numberofMissedLetter.current + numberofMissedLetter + 1
       }
-      console.log(numberofMissedLetter);
       let w = document.querySelectorAll('.word')
-      let wordPos = props.wordPosition+1;
+      let wordPos = props.wordPosition + 1;
       let wordLength = props.phrase[props.wordPosition + 1].length;
       let word = props.phrase[props.wordPosition + 1]
 
-      if (w[props.wordPosition+1]?.offsetTop != w[props.wordPosition]?.offsetTop) {
+      if (w[props.wordPosition + 1]?.offsetTop != w[props.wordPosition]?.offsetTop) {
 
         if (count < 1) {
-          
+
           setCount(prev => prev + 1)
         }
         else {
           // Would not respond to dynamic screen size changes
 
           if (props.phrase.length > 25) {
-            
+
             props.setPhrase(props.phrase.slice(props.lineBreakIndex + 1))
-          
+
             props.setLetterState({
               type: 'INITREFRESH',
               payload: {
-                "position":props.lineBreakIndex
+                "position": props.lineBreakIndex
               }
             })
-          
-            wordPos = props.wordPosition-props.lineBreakIndex
-            wordLength = props.phrase[props.wordPosition+1].length
-            word = props.phrase[props.wordPosition+1]
+
+            wordPos = props.wordPosition - props.lineBreakIndex
+            wordLength = props.phrase[props.wordPosition + 1].length
+            word = props.phrase[props.wordPosition + 1]
           }
         }
-        props.setLineBreakIndex(wordPos-1)
+        props.setLineBreakIndex(wordPos - 1)
       }
       props.setLetterState({
         type: 'ACTIVE',
@@ -172,7 +173,7 @@ export default function TypingBox(props) {
         props.setLetterState({
           type: 'REMOVE',
           payload: {
-            'wordPos': wordPos-1,
+            'wordPos': wordPos - 1,
             'letterPos': props.letterPosition
           }
         })
@@ -182,18 +183,17 @@ export default function TypingBox(props) {
       props.setletterPosition(0)
       props.setWordLength(wordLength)
       props.setWord(word)
-      
+
     }
-    else if (props.wordPosition<=props.phrase.length-1 && event.key == 'Backspace' && props.letterPosition > 0) {
+    else if (props.wordPosition <= props.phrase.length - 1 && event.key == 'Backspace' && props.letterPosition > 0) {
       let w = document.querySelectorAll('.word')
-      console.log("extra error class");
-      // console.log(props.numberofIncorrectLetter.current + props.numberofCorrectLetter.current);
-      console.log(w[props.wordPosition].childNodes[props.letterPosition-1].className);
-      // console.log(w[props.numberofIncorrectLetter.current + props.numberofCorrectLetter.current].className);
-      if(w[props.wordPosition].childNodes[props.letterPosition-1].className=='letter extra-error'){
-        console.log('extra word is present');
+      // console.log("extra error class");
+      // console.log("letter position: ",props.letterPosition - 2);
+      console.log(w[props.wordPosition].childNodes[props.letterPosition - 1].className);
+      if (w[props.wordPosition].childNodes[props.letterPosition - 1].className.includes('extra-word')) {
+        // console.log('extra word is present');
         let tempPhrase = props.phrase
-        tempPhrase[props.wordPosition] = tempPhrase[props.wordPosition].slice(0,props.letterPosition-1)
+        tempPhrase[props.wordPosition] = tempPhrase[props.wordPosition].slice(0, props.letterPosition - 1)
         props.numberofExtraLetter.current = props.numberofExtraLetter.current - 1
       }
       props.setLetterState({
@@ -206,13 +206,13 @@ export default function TypingBox(props) {
       props.setletterPosition(prev => prev - 1)
       props.setCursorPosition(props.cursorPosition - 1)
     }
-    else if ((props.wordPosition<=props.phrase.length-1) && props.letterPosition >= props.wordLength && event.key !== ' ' && event.key !== 'Backspace' && event.key !== 'Enter'){
+    else if ((props.wordPosition <= props.phrase.length - 1) && props.letterPosition >= props.wordLength && AllowedLetterList.has(event.which)) {
       let tempPhrase = props.phrase
       tempPhrase[props.wordPosition] = tempPhrase[props.wordPosition] + event.key
       props.setPhrase(tempPhrase)
       props.setletterPosition(prev => prev + 1)
-      
-      console.log('word index: ',props.letterPosition);
+
+      console.log('word index: ', props.letterPosition);
       props.setLetterState({
         type: 'ADDEXTRALETTER',
         payload: {
@@ -226,18 +226,33 @@ export default function TypingBox(props) {
 
   }
 
+  const [, setForceUpdate] = useState(Date.now());
+
+  // Force UI regresh to get latest changes in WordRef
+
+  useEffect(()=>{
+    setForceUpdate(Date.now())
+  }, [props.letterPosition])
 
 
   useEffect(() => {
     BoxRef.current.focus()
   }, [props.phrase])
 
-  return (
-    <div ref={BoxRef} onFocus={() => setFocused(true)} onClick={(event) => { BoxRef.current.focus() }} className='typingBox' onKeyDown={(event) => StoreText(event)} tabIndex='0' autoFocus>
-      {props.phrase.map((word, w) => {
+  return (<>
+    <div ref={BoxRef} onFocus={() => setFocused(true)} onClick={(event) => { BoxRef.current.focus() }} onKeyDown={(event) => StoreText(event)} className='typingBox' tabIndex={0} autoFocus>
+    <PointerComponent WordRef = {WordRef}></PointerComponent>
+    {props.phrase.map((word, w) => {
         let letterEle = word.split('')
-        return (<div className="word">{letterEle.map((letter, l) => <div className={`letter${props.letterState[w][l]}`} ref={props.letterState[w][l] == "active" ? WordRef : null}>{letter}</div>)}</div>)
+        return (
+        <div className="word">{letterEle.map((letter, l) => {
+          return (
+          
+            <div className={`letter${props.letterState[w][l]}`} ref={(props.letterState[w][l].includes("active") || props.letterState[w][l].includes("activeRight")) ? WordRef : null}>{letter}</div>
+        )})
+        }</div>)
       })}
     </div>
+  </>
   )
 }
