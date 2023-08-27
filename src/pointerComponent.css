@@ -11,8 +11,8 @@
 }
 
 @keyframes pointer1{
-    from{background-color:#E2B714}
-    to{background-color:#323437}
+    from{opacity: 1;}
+    to{opacity: 0;}
     
   }
 
