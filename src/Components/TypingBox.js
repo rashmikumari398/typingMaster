@@ -54,9 +54,9 @@ export default function TypingBox(props) {
       props.setTimerCounter(props.timerValue)
       if (!props.wordOption) {
         props.setTimeOut(setTimeout(calculateWPM, (props.timerValue + 1) * 1000))
-        props.setIntervalValue(setInterval(() => {
-          props.setTimerCounter(prev => prev - 1)
-        }, 1000));
+        // props.setIntervalValue(setInterval(() => {
+        //   props.setTimerCounter(prev => prev - 1)
+        // }, 1000));
       }
       props.setTimer(true)
       setCount(0)

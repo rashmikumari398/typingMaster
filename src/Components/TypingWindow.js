@@ -216,7 +216,8 @@ export default function TypingWindow() {
           ></FeatureComponent>
         </div>
           <StatusComponent wordOption={wordOption} timer={timer} wordCounter={wordCounter}
-            numberofWord={numberofWord} timerCounter={timerCounter}></StatusComponent>
+            numberofWord={numberofWord} timerCounter={timerCounter} setIntervalValue={setIntervalValue} 
+            setTimerCounter={setTimerCounter}></StatusComponent>
           <div id="typingBoxContainer">
 
             <TypingBox phrase={phrase} setPhrase={setPhrase} wordPosition={wordPosition} setwordPosition={setwordPosition}
