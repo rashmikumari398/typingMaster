@@ -64,7 +64,7 @@ export default function TypingBox(props) {
       props.numberofIncorrectLetter.current = 0
       props.numberofExtraLetter.current = 0
       props.numberofMissedLetter.current = 0
-      console.log(Date.now());
+      // console.log(Date.now());
     }
 
 
@@ -106,7 +106,7 @@ export default function TypingBox(props) {
       }
     }
     else if ((event.key == ' ') && props.wordPosition < props.phrase.length - 1) {
-      console.log(props.letterState[props.wordPosition]);
+      // console.log(props.letterState[props.wordPosition]);
       if (props.wordOption) {
         props.setWordCounter(prev => prev + 1)
       }
@@ -142,8 +142,6 @@ export default function TypingBox(props) {
           setCount(prev => prev + 1)
         }
         else {
-          // Would not respond to dynamic screen size changes
-
           if (props.phrase.length > 25) {
 
             props.setPhrase(props.phrase.slice(props.lineBreakIndex + 1))
@@ -189,7 +187,7 @@ export default function TypingBox(props) {
       let w = document.querySelectorAll('.word')
       // console.log("extra error class");
       // console.log("letter position: ",props.letterPosition - 2);
-      console.log(w[props.wordPosition].childNodes[props.letterPosition - 1].className);
+      // console.log(w[props.wordPosition].childNodes[props.letterPosition - 1].className);
       if (w[props.wordPosition].childNodes[props.letterPosition - 1].className.includes('extra-word')) {
         // console.log('extra word is present');
         let tempPhrase = props.phrase
@@ -212,7 +210,6 @@ export default function TypingBox(props) {
       props.setPhrase(tempPhrase)
       props.setletterPosition(prev => prev + 1)
 
-      console.log('word index: ', props.letterPosition);
       props.setLetterState({
         type: 'ADDEXTRALETTER',
         payload: {
@@ -231,8 +228,9 @@ export default function TypingBox(props) {
   // Force UI regresh to get latest changes in WordRef
 
   useEffect(()=>{
+    // console.log("excuted typing box");
     setForceUpdate(Date.now())
-  }, [props.letterPosition])
+  }, [props.letterPosition,props.phrase])
 
 
   useEffect(() => {

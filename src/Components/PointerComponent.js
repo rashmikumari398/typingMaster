@@ -8,11 +8,8 @@ export default function PointerComponent({ WordRef }) {
     let cursorLeftPosition= (WordRef.current != null ? ( WordRef.current.className.includes("activeRight") ? (WordRef.current.offsetLeft + WordRef.current.offsetWidth) : WordRef.current.offsetLeft) : "-100px");
     
     return (
-        // <ThemeProvider>
-        // style={{ position: "relative", left: pointerPosition }}
         <div className="pointer" style={{top:cursorTopPosition, left: cursorLeftPosition}}>
         </div>
-        // </ThemeProvider>
 
     )
 }

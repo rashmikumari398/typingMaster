@@ -2,14 +2,16 @@ import React, { useEffect } from 'react'
 import '../TypingWindow.css'
 
 export default function StatusComponent({ wordOption, timer, wordCounter, numberofWord, timerCounter,setIntervalValue,
-    setTimerCounter}) {
+    setTimerCounter,interval,phrase}) {
+
     useEffect(() => {
-        if (!wordOption) {
+        if (timer) {
+            clearInterval(interval)
             setIntervalValue(setInterval(() => {
                 setTimerCounter(prev => prev - 1)
             }, 1000));
         }
-    }, [wordOption])
+    },[timer])
     return (
         <div id='displayProgressContainer'>
             {wordOption ? (timer ? `${wordCounter}/${numberofWord}` : '') : (timer ? timerCounter : '')}
