@@ -226,6 +226,15 @@ export default function TypingBox(props) {
 
   }
 
+  const [, setForceUpdate] = useState(Date.now());
+
+  // Force UI regresh to get latest changes in WordRef
+
+  useEffect(()=>{
+
+    setForceUpdate(Date.now())
+  })
+
 
   useEffect(() => {
     BoxRef.current.focus()
