@@ -36,12 +36,12 @@ export default function TypingBox(props) {
     console.log("total incorrect Word: ", numberofIncorrect);
     console.log("total correct word: ", numberofcorrect);
 
-    console.log('total word: ', numberofcorrect / 5);
-    console.log("wpm: ", (numberofcorrect / 5) / totalTime);
+    console.log('total word: ', numberofcorrect / 4.55);
+    console.log("wpm: ", (numberofcorrect / 4.5) / totalTime);
     props.numberofCorrectLetter.current = numberofcorrect
     props.numberofIncorrectLetter.current = numberofIncorrect
     // props.numberofMissedLetter.current = numberofMissedLetter
-    props.setWpm(((numberofcorrect / 5) / totalTime).toFixed(2))
+    props.setWpm(((numberofcorrect / 4.5) / totalTime).toFixed(2))
     props.setDisplayResultWindow(true)
     props.setwordPosition(props.phrase.length)
   }
