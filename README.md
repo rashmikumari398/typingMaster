@@ -1,1 +1,1 @@
-# typingMaster
+# KeyStrokeSkills
