@@ -40,3 +40,9 @@
 #displayProgress{
     color:#E2B714 ;
 }
+.join{
+    opacity: 0.5;
+}
+.join:hover{
+    opacity: 1;
+}
