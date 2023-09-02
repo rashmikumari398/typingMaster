@@ -234,7 +234,7 @@ export default function TypingWindow() {
           </div>
         </div>
       }
-      <div onClick={() => generatephrase()} tabIndex={0} style={{padding: "10px", marginInline:"auto", maxWidth:"fit-content"}}>
+      <div onKeyDown={() => generatephrase()} onClick={() => generatephrase()} tabIndex={0} style={{padding: "10px", marginInline:"auto", maxWidth:"fit-content"}}>
         <ButtonIcon></ButtonIcon>
       </div>
 
